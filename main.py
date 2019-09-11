@@ -5,6 +5,8 @@ from file_functions import processate_instance_file
 from knapsack01_biobjective_instance import Knapsack01BiobjectiveSolution
 import sys
 from typing import Dict, List
+from algorithms import *
+import random
 
 
 def processate_line_command_parameters(list_of_params: List[str]) -> Dict:
@@ -37,23 +39,35 @@ def processate_line_command_parameters(list_of_params: List[str]) -> Dict:
 
 
 def main():
+    random.seed()
     dict_of_params = processate_line_command_parameters(sys.argv)
-    print(dict_of_params)
+    # print(dict_of_params)
     if dict_of_params:
         kp_instance = processate_instance_file(
             dict_of_params[Const.INSTANCE_FILE], dict_of_params[Const.INSTANCE_NUMBER_INSIDE_FILE])
         if kp_instance:
-            print(str(kp_instance))
-            solution = solve_knapsack01_problem(kp_instance)
-            print("SOLUCAO OTIMA: %d" % solution)
-            solution_is_valid = False
-            if kp_instance.z == solution:
-                solution_is_valid = True
-            print("SOLUCAO EH VALIDA? R: %s" % str(solution_is_valid))
-            solution = Knapsack01BiobjectiveSolution(kp_instance)
-            solution.x_vector = list(kp_instance.x_vector)
-            print("\nCLASSE SOLUTION:")
+            # print(str(kp_instance))
+            # solution = solve_knapsack01_problem(kp_instance)
+            # print("SOLUCAO OTIMA: %d" % solution)
+            # solution_is_valid = False
+            # if kp_instance.z == solution:
+            #     solution_is_valid = True
+            # print("SOLUCAO EH VALIDA? R: %s" % str(solution_is_valid))
+            # solution = Knapsack01BiobjectiveSolution(kp_instance)
+            # solution.x_vector = list(kp_instance.x_vector)
+            # print("\nCLASSE SOLUTION:")
+            # print(str(solution))
+            solution = generate_ramdomic_solution_for_knapsack_01_problem(kp_instance)
+            print("\nSOLUCAO GERADA ALEATORIAMENTE:")
             print(str(solution))
+            print("SOLUCAO EH VALIDA? R: " + str(solution.is_valid()))
+            print("APLICANDO MOVIMENTO NA SOLUCAO...")
+            apply_movement_put_or_remove_item_in_randomic_position(solution)
+            print("\nSOLUCAO APOS ALTERACAO:")
+            print(str(solution))
+            print("SOLUCAO EH VALIDA? R: " + str(solution.is_valid()))
+            # print("LUCRO DA SOLUCAO: %d" % solution.profit())
+            # print("PESO DA SOLUCAO: %d" % solution.weight())
 
 
 if __name__ == "__main__":
