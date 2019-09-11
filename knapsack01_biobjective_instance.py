@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from typing import Tuple
 
+
 class Knapsack01BiobjectiveInstance:
     def __init__(self, name: str, n: int = 0, c: int = 0, z: int = 0) -> None:
         self.name = name

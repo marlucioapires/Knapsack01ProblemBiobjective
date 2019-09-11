@@ -87,3 +87,22 @@ def generate_ramdomic_solution_for_knapsack_01_problem(
             break
     kp01_solution.update_weight_and_profit()
     return kp01_solution
+
+
+def generate_solution_with_single_item_for_knapsack_01_problem(
+        kp01_instance: Knapsack01BiobjectiveInstance, item: int) -> Knapsack01BiobjectiveSolution:
+    kp01_solution = Knapsack01BiobjectiveSolution(kp01_instance)
+    if kp01_instance.weight[item] <= kp01_instance.c:
+        kp01_solution.x_vector[item] = 1
+    kp01_solution.update_weight_and_profit()
+    return kp01_solution
+
+
+def generate_list_of_solutions_with_single_items_for_knapsack_01_problem(
+        kp01_instance: Knapsack01BiobjectiveInstance) -> List[Knapsack01BiobjectiveSolution]:
+    list_of_solutions = []
+    for i in range(kp01_instance.n):
+        solution = generate_solution_with_single_item_for_knapsack_01_problem(kp01_instance, i)
+        if solution.weight() >= 0:
+            list_of_solutions.append(solution)
+    return list_of_solutions

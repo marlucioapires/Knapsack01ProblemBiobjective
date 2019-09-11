@@ -7,7 +7,34 @@ import sys
 from typing import Dict, List
 from algorithms import *
 import random
-from copy import deepcopy
+from general_functions import sort_solutions
+import matplotlib.pyplot as plt
+import numpy as np
+
+
+def plot_graphic_of_solutions(
+        sorted_list_of_solutions: List[Knapsack01BiobjectiveSolution],
+        list_of_non_dominated_solutions: List[int]) -> None:
+    is_non_dominated_solution = [0] * len(sorted_list_of_solutions)
+    for i in list_of_non_dominated_solutions:
+        is_non_dominated_solution[i] = 1
+    plt.plot([sorted_list_of_solutions[i].profit()
+              for i in range(len(sorted_list_of_solutions))
+              if is_non_dominated_solution[i]],
+             [sorted_list_of_solutions[i].weight()
+              for i in range(len(sorted_list_of_solutions))
+              if is_non_dominated_solution[i]], 'b+')
+    plt.plot([sorted_list_of_solutions[i].profit()
+              for i in range(len(sorted_list_of_solutions))
+              if not is_non_dominated_solution[i]],
+             [sorted_list_of_solutions[i].weight()
+              for i in range(len(sorted_list_of_solutions))
+              if not is_non_dominated_solution[i]], 'r+')
+    # plt.axis([0, 6, 0, 20])
+    plt.xlabel('LUCRO')
+    plt.ylabel('PESO')
+    plt.title('Problema da Mochila 0-1 Biobjetivo')
+    plt.show()
 
 
 def print_profit_and_weight_of_solutions(
@@ -70,42 +97,19 @@ def main():
         kp_instance = processate_instance_file(
             dict_of_params[Const.INSTANCE_FILE], dict_of_params[Const.INSTANCE_NUMBER_INSIDE_FILE])
         if kp_instance:
-            # print(str(kp_instance))
-            # solution = solve_knapsack01_problem(kp_instance)
-            # print("SOLUCAO OTIMA: %d" % solution)
-            # solution_is_valid = False
-            # if kp_instance.z == solution:
-            #     solution_is_valid = True
-            # print("SOLUCAO EH VALIDA? R: %s" % str(solution_is_valid))
-            # solution = Knapsack01BiobjectiveSolution(kp_instance)
-            # solution.x_vector = list(kp_instance.x_vector)
-            # print("\nCLASSE SOLUTION:")
-            # print(str(solution))
-            # solution = generate_ramdomic_solution_for_knapsack_01_problem(kp_instance)
-            # print("\nSOLUCAO GERADA ALEATORIAMENTE:")
-            # print(str(solution))
-            # print("SOLUCAO EH VALIDA? R: " + str(solution.is_valid()))
-            # print("APLICANDO MOVIMENTO NA SOLUCAO...")
-            # apply_movement_put_or_remove_item_in_randomic_position(solution)
-            # print("\nSOLUCAO APOS ALTERACAO:")
-            # print(str(solution))
-            # print("SOLUCAO EH VALIDA? R: " + str(solution.is_valid()))
-            # print("LUCRO DA SOLUCAO: %d" % solution.profit())
-            # print("PESO DA SOLUCAO: %d" % solution.weight())
-
-            list_of_sorted_solutions = []
-            for i in range(100):
-                solution = generate_ramdomic_solution_for_knapsack_01_problem(kp_instance)
-                non_dominated, pos = \
-                    calculate_position_in_pool_of_solutions(solution, list_of_sorted_solutions)
-                list_of_sorted_solutions.insert(pos, deepcopy(solution))
+            list_of_solutions = []
+            for i in range(10000):
+                list_of_solutions.append(
+                    generate_ramdomic_solution_for_knapsack_01_problem(kp_instance))
+            sort_solutions(list_of_solutions)
             list_of_non_dominated_solutions = \
-                calculate_list_of_non_dominated_solutions(list_of_sorted_solutions)
+                calculate_list_of_non_dominated_solutions(list_of_solutions)
             print_profit_and_weight_of_solutions_with_nd_information(
-                list_of_sorted_solutions, list_of_non_dominated_solutions)
-            # print_profit_and_weight_of_solutions(list_of_sorted_solutions)
+                list_of_solutions, list_of_non_dominated_solutions)
+            # print_profit_and_weight_of_solutions(list_of_solutions)
             print("SOLUCOES NAO DOMINADAS:")
-            print(calculate_list_of_non_dominated_solutions(list_of_sorted_solutions))
+            print(calculate_list_of_non_dominated_solutions(list_of_solutions))
+            plot_graphic_of_solutions(list_of_solutions, list_of_non_dominated_solutions)
 
 
 if __name__ == "__main__":
