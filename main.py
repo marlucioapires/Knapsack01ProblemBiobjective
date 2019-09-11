@@ -7,6 +7,30 @@ import sys
 from typing import Dict, List
 from algorithms import *
 import random
+from copy import deepcopy
+
+
+def print_profit_and_weight_of_solutions(
+        sorted_list_of_solutions: List[Knapsack01BiobjectiveSolution]) -> None:
+    print("VALORES DAS FUNCOES:")
+    print("LUCRO / PESO")
+    for solution in sorted_list_of_solutions:
+        print(solution.profit(), solution.weight())
+
+
+def print_profit_and_weight_of_solutions_with_nd_information(
+        sorted_list_of_solutions: List[Knapsack01BiobjectiveSolution],
+        list_of_non_dominated_solutions: List[int]) -> None:
+    print("VALORES DAS FUNCOES:")
+    print("LUCRO / PESO")
+    j_aux = 0
+    for i, solution in enumerate(sorted_list_of_solutions):
+        str_nd_aux = ""
+        if j_aux < len(list_of_non_dominated_solutions) and \
+                i == list_of_non_dominated_solutions[j_aux]:
+            j_aux += 1
+            str_nd_aux = "ND"
+        print(solution.profit(), solution.weight(), str_nd_aux)
 
 
 def processate_line_command_parameters(list_of_params: List[str]) -> Dict:
@@ -57,17 +81,31 @@ def main():
             # solution.x_vector = list(kp_instance.x_vector)
             # print("\nCLASSE SOLUTION:")
             # print(str(solution))
-            solution = generate_ramdomic_solution_for_knapsack_01_problem(kp_instance)
-            print("\nSOLUCAO GERADA ALEATORIAMENTE:")
-            print(str(solution))
-            print("SOLUCAO EH VALIDA? R: " + str(solution.is_valid()))
-            print("APLICANDO MOVIMENTO NA SOLUCAO...")
-            apply_movement_put_or_remove_item_in_randomic_position(solution)
-            print("\nSOLUCAO APOS ALTERACAO:")
-            print(str(solution))
-            print("SOLUCAO EH VALIDA? R: " + str(solution.is_valid()))
+            # solution = generate_ramdomic_solution_for_knapsack_01_problem(kp_instance)
+            # print("\nSOLUCAO GERADA ALEATORIAMENTE:")
+            # print(str(solution))
+            # print("SOLUCAO EH VALIDA? R: " + str(solution.is_valid()))
+            # print("APLICANDO MOVIMENTO NA SOLUCAO...")
+            # apply_movement_put_or_remove_item_in_randomic_position(solution)
+            # print("\nSOLUCAO APOS ALTERACAO:")
+            # print(str(solution))
+            # print("SOLUCAO EH VALIDA? R: " + str(solution.is_valid()))
             # print("LUCRO DA SOLUCAO: %d" % solution.profit())
             # print("PESO DA SOLUCAO: %d" % solution.weight())
+
+            list_of_sorted_solutions = []
+            for i in range(100):
+                solution = generate_ramdomic_solution_for_knapsack_01_problem(kp_instance)
+                non_dominated, pos = \
+                    calculate_position_in_pool_of_solutions(solution, list_of_sorted_solutions)
+                list_of_sorted_solutions.insert(pos, deepcopy(solution))
+            list_of_non_dominated_solutions = \
+                calculate_list_of_non_dominated_solutions(list_of_sorted_solutions)
+            print_profit_and_weight_of_solutions_with_nd_information(
+                list_of_sorted_solutions, list_of_non_dominated_solutions)
+            # print_profit_and_weight_of_solutions(list_of_sorted_solutions)
+            print("SOLUCOES NAO DOMINADAS:")
+            print(calculate_list_of_non_dominated_solutions(list_of_sorted_solutions))
 
 
 if __name__ == "__main__":

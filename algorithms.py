@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from knapsack01_biobjective_instance import Knapsack01BiobjectiveInstance
 from knapsack01_biobjective_instance import Knapsack01BiobjectiveSolution
-from typing import Tuple
+from typing import List, Tuple
 import random
 
 
@@ -35,6 +35,40 @@ def apply_movement_put_or_remove_item_in_randomic_position(
         kp01_solution: Knapsack01BiobjectiveSolution) -> Tuple[int, int]:
     position = random.randrange(kp01_solution.kp_instance.n)
     return apply_movement_put_or_remove_item(kp01_solution, position)
+
+
+def calculate_position_in_pool_of_solutions(
+        kp01_solution: Knapsack01BiobjectiveSolution,
+        sorted_list_of_solutions: List[Knapsack01BiobjectiveSolution]) -> Tuple[bool, int]:
+    position_to_return = -1
+    non_dominated = True
+    for position, solution in reversed(list(enumerate(sorted_list_of_solutions))):
+        if solution.profit() > kp01_solution.profit() or \
+                (solution.profit() == kp01_solution.profit() and
+                 solution.weight() <= kp01_solution.weight()):
+            position_to_return = position
+            break
+    for i in range(position_to_return, -1, -1):
+        if sorted_list_of_solutions[i].weight() < kp01_solution.weight() or \
+                (sorted_list_of_solutions[i].weight() == kp01_solution.weight() and
+                 sorted_list_of_solutions[i].profit() != kp01_solution.profit()):
+            non_dominated = False
+    return non_dominated, position_to_return + 1
+
+
+def calculate_list_of_non_dominated_solutions(
+        sorted_list_of_solutions: List[Knapsack01BiobjectiveSolution]) -> List[int]:
+    list_of_non_dominated_solutions = [0]
+    profit_of_last_nd = sorted_list_of_solutions[0].profit()
+    weight_of_last_nd = sorted_list_of_solutions[0].weight()
+    for i, solution in enumerate(list(sorted_list_of_solutions)[1:]):
+        if solution.weight() < weight_of_last_nd:
+            profit_of_last_nd = solution.profit()
+            weight_of_last_nd = solution.weight()
+            list_of_non_dominated_solutions.append(i + 1)
+        elif solution.weight() == weight_of_last_nd and solution.profit() == profit_of_last_nd:
+            list_of_non_dominated_solutions.append(i + 1)
+    return list_of_non_dominated_solutions
 
 
 def generate_ramdomic_solution_for_knapsack_01_problem(
