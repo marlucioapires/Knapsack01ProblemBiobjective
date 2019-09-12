@@ -58,9 +58,13 @@ def calculate_position_in_pool_of_solutions(
 
 def calculate_list_of_non_dominated_solutions(
         sorted_list_of_solutions: List[Knapsack01BiobjectiveSolution]) -> List[int]:
-    list_of_non_dominated_solutions = [0]
+    if not sorted_list_of_solutions:
+        return []
+    list_of_non_dominated_solutions = [0]  # A primeira solução da lista é não dominada.
     profit_of_last_nd = sorted_list_of_solutions[0].profit()
     weight_of_last_nd = sorted_list_of_solutions[0].weight()
+
+    # Percorre-se as demais soluções da lista e contabiliza-se as demais soluções não dominadas.
     for i, solution in enumerate(list(sorted_list_of_solutions)[1:]):
         if solution.weight() < weight_of_last_nd:
             profit_of_last_nd = solution.profit()
@@ -71,7 +75,7 @@ def calculate_list_of_non_dominated_solutions(
     return list_of_non_dominated_solutions
 
 
-def generate_ramdomic_solution_for_knapsack_01_problem(
+def generate_ramdomic_solution_for_knapsack_01_problem_only_valid(
         kp01_instance: Knapsack01BiobjectiveInstance) -> Knapsack01BiobjectiveSolution:
     kp01_solution = Knapsack01BiobjectiveSolution(kp01_instance)
     weight_sum = 0
@@ -85,6 +89,18 @@ def generate_ramdomic_solution_for_knapsack_01_problem(
             weight_sum += kp01_instance.weight[indirect_index_of_items[item_iter]]
         elif weight_sum == kp01_instance.c:
             break
+    kp01_solution.update_weight_and_profit()
+    return kp01_solution
+
+
+def generate_ramdomic_solution_for_knapsack_01_problem(
+        kp01_instance: Knapsack01BiobjectiveInstance) -> Knapsack01BiobjectiveSolution:
+    kp01_solution = Knapsack01BiobjectiveSolution(kp01_instance)
+    # indirect_index_of_items = list(range(kp01_instance.n))
+    # random.shuffle(indirect_index_of_items)
+    for item_iter in range(kp01_instance.n):
+        if random.randint(0, 1):
+            kp01_solution.x_vector[item_iter] = 1
     kp01_solution.update_weight_and_profit()
     return kp01_solution
 
