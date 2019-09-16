@@ -27,7 +27,11 @@ def merge(arr: List[Knapsack01BiobjectiveSolution], l: int, m: int, r: int):
     k = l  # Initial index of merged subarray
 
     while i < n1 and j < n2:
-        if array_left[i].profit() >= array_right[j].profit():
+        if array_left[i].profit() > array_right[j].profit():
+            arr[k] = array_left[i]
+            i += 1
+        elif array_left[i].profit() == array_right[j].profit() and \
+                array_left[i].weight() <= array_right[j].weight():
             arr[k] = array_left[i]
             i += 1
         else:

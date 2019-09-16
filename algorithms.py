@@ -1,8 +1,11 @@
 # -*- coding: utf-8 -*-
+from general_functions import sort_solutions
 from knapsack01_biobjective_instance import Knapsack01BiobjectiveInstance
 from knapsack01_biobjective_instance import Knapsack01BiobjectiveSolution
 from typing import List, Tuple
 import random
+import time
+import math
 
 
 def knapsack_01_problem_with_dynamic_programming(kp01_instance: Knapsack01BiobjectiveInstance) -> int:
@@ -56,7 +59,7 @@ def calculate_position_in_pool_of_solutions(
     return non_dominated, position_to_return + 1
 
 
-def calculate_list_of_non_dominated_solutions(
+def calculate_list_of_indexes_of_non_dominated_solutions(
         sorted_list_of_solutions: List[Knapsack01BiobjectiveSolution]) -> List[int]:
     if not sorted_list_of_solutions:
         return []
@@ -70,8 +73,8 @@ def calculate_list_of_non_dominated_solutions(
             profit_of_last_nd = solution.profit()
             weight_of_last_nd = solution.weight()
             list_of_non_dominated_solutions.append(i + 1)
-        elif solution.weight() == weight_of_last_nd and solution.profit() == profit_of_last_nd:
-            list_of_non_dominated_solutions.append(i + 1)
+        # elif solution.weight() == weight_of_last_nd and solution.profit() == profit_of_last_nd:
+        #     list_of_non_dominated_solutions.append(i + 1)
     return list_of_non_dominated_solutions
 
 
@@ -122,3 +125,46 @@ def generate_list_of_solutions_with_single_items_for_knapsack_01_problem(
         if solution.weight() >= 0:
             list_of_solutions.append(solution)
     return list_of_solutions
+
+
+def delete_dominated_solutions_from_sorted_list(
+        sorted_list_of_solutions: List[Knapsack01BiobjectiveSolution]):
+    list_of_indexes_of_non_dominated_solutions = \
+        calculate_list_of_indexes_of_non_dominated_solutions(sorted_list_of_solutions)
+    is_non_dominated_solution = [0] * len(sorted_list_of_solutions)
+    for i in list_of_indexes_of_non_dominated_solutions:
+        is_non_dominated_solution[i] = 1
+    i = 0
+    while i < len(sorted_list_of_solutions):
+        if not is_non_dominated_solution[i]:
+            del sorted_list_of_solutions[i]
+            del is_non_dominated_solution[i]
+        else:
+            i += 1
+
+
+def branch_and_bound_for_knapsack_01_problem_biobjective(
+        kp01_instance: Knapsack01BiobjectiveInstance,
+        max_execution_time: float = math.inf) -> Tuple[int, List[Knapsack01BiobjectiveSolution]]:
+    execution_start_time = time.time()
+    solution_zero = Knapsack01BiobjectiveSolution(kp01_instance)
+    list_of_non_dominated_solutions = [solution_zero, ]
+    count_solutions_generated = 1
+    for item_iter in range(kp01_instance.n):
+        print("RAMIFICACAO DO ITEM NR. %d / %d" % (item_iter + 1, kp01_instance.n))
+        list_of_new_solutions = []
+        for solution_iter in list_of_non_dominated_solutions:
+            count_solutions_generated += 1
+            new_solution = Knapsack01BiobjectiveSolution(kp01_instance)
+            new_solution.x_vector = list(solution_iter.x_vector)
+            new_solution.x_vector[item_iter] = 1
+            list_of_new_solutions.append(new_solution)
+        list_of_non_dominated_solutions.extend(list_of_new_solutions)
+        sort_solutions(list_of_non_dominated_solutions)
+        delete_dominated_solutions_from_sorted_list(list_of_non_dominated_solutions)
+        if max_execution_time != math.inf:
+            execution_current_time = (time.time() - execution_start_time)
+            if execution_current_time > max_execution_time:
+                break
+    print("TOTAL DE SOLUCOES GERADAS NO BRANCH AND BOUND: %d" % count_solutions_generated)
+    return count_solutions_generated, list_of_non_dominated_solutions
